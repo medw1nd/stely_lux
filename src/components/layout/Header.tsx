@@ -53,7 +53,7 @@ const Header: React.FC = () => {
   return (
     // 1. FIXED + Z-INDEX 100: Хедер всегда сверху
     // 2. POINTER-EVENTS-NONE: Сам контейнер пропускает клики сквозь себя
-    <nav className={`fixed top-0 left-0 right-0 z-[100] w-full h-16 lg:h-20 pointer-events-none transition-all duration-300 ${isScrolled ? 'bg-black/20 backdrop-blur-lg' : 'bg-transparent'}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-[100] w-full h-20 lg:h-24 pointer-events-none transition-all duration-300 ${isScrolled ? 'bg-black/40 backdrop-blur-lg' : 'bg-transparent'}`}>
       <div className="w-full h-full px-4 md:px-6 lg:px-20 py-2">
         <div className="flex items-center justify-between h-full flex-row-reverse lg:flex-row">
 
