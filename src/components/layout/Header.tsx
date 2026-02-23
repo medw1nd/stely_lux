@@ -61,7 +61,7 @@ const Header: React.FC = () => {
           <div className="flex items-center gap-2 pointer-events-auto"> {/* Включаем клики для детей */}
             <button
               onClick={(e) => handleScrollTo(e, '#home')}
-              className="flex items-center gap-2 shrink-0 group focus:outline-none"
+              className="flex items-center gap-2 shrink-0 group focus:outline-none -translate-y-[2px]"
             >
               <img
                 src="/logo.png"
