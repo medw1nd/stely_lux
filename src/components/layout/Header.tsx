@@ -53,9 +53,9 @@ const Header: React.FC = () => {
   return (
     // 1. FIXED + Z-INDEX 100: Хедер всегда сверху
     // 2. POINTER-EVENTS-NONE: Сам контейнер пропускает клики сквозь себя
-    <nav className={`fixed top-0 left-0 right-0 z-[100] w-full h-20 pointer-events-none transition-all duration-300 ${isScrolled ? 'bg-black/20 backdrop-blur-lg' : 'bg-transparent'}`}>
-      <div className="w-full h-full px-20 py-2">
-        <div className="flex items-center justify-between h-full">
+    <nav className={`fixed top-0 left-0 right-0 z-[100] w-full h-16 lg:h-20 pointer-events-none transition-all duration-300 ${isScrolled ? 'bg-black/20 backdrop-blur-lg' : 'bg-transparent'}`}>
+      <div className="w-full h-full px-4 md:px-6 lg:px-20 py-2">
+        <div className="flex items-center justify-between h-full flex-row-reverse lg:flex-row">
 
           {/* ЛЕВАЯ ЧАСТЬ (ЛОГОТИП) */}
           <div className="flex items-center gap-2 pointer-events-auto"> {/* Включаем клики для детей */}
@@ -66,7 +66,7 @@ const Header: React.FC = () => {
               <img
                 src="/logo.png"
                 alt="Steli Lux Logo"
-                className="h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                className="h-9 lg:h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
               />
             </button>
           </div>
@@ -98,46 +98,72 @@ const Header: React.FC = () => {
           </div>
 
           {/* МОБИЛЬНАЯ КНОПКА МЕНЮ */}
-          <div className="lg:hidden flex items-center pointer-events-auto">
+          <div className="lg:hidden flex items-center pointer-events-auto shrink-0">
             <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="p-2 -ml-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
             >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              <Menu className="w-6 h-6" />
             </button>
           </div>
 
         </div>
       </div>
 
-      {/* МОБИЛЬНОЕ МЕНЮ (Выпадающий список) */}
+      {/* Затемнення фону */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="absolute top-20 left-4 right-4 bg-[#121212]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden py-4 z-50 pointer-events-auto lg:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] lg:hidden pointer-events-auto"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* МОБИЛЬНОЕ МЕНЮ (Сайдбар зліва) */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
+            className="fixed top-0 left-0 h-[100dvh] w-[80vw] max-w-[320px] bg-[#121212]/95 backdrop-blur-xl border-r border-white/10 shadow-2xl z-[101] pointer-events-auto lg:hidden flex flex-col"
           >
-            <div className="flex flex-col gap-2">
+            {/* Header of sidebar */}
+            <div className="flex items-center justify-between px-6 h-20 border-b border-white/10 shrink-0">
+              <span className="text-white font-bold text-xl tracking-widest uppercase">Меню</span>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-2 -mr-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Links */}
+            <div className="flex flex-col gap-2 p-4 overflow-y-auto">
               {navLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
                   onClick={(e) => handleScrollTo(e as any, link.href)}
-                  className="w-full flex items-center px-6 py-3 text-lg font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
+                  className="w-full flex items-center px-4 py-4 text-lg font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-colors"
                 >
                   {link.name}
                 </a>
               ))}
 
-              <div className="mx-6 my-2 border-t border-white/5" />
+              <div className="mx-4 my-4 border-t border-white/5 shrink-0" />
 
-              <div className="px-6 pt-2">
+              <div className="px-4 shrink-0 pb-8">
                 <a
                   href="tel:+380977347767"
-                  className="w-full flex justify-center items-center gap-2 px-5 py-3 rounded-xl bg-orange-500 hover:bg-orange-600 transition-colors text-white font-bold"
+                  className="w-full flex justify-center items-center gap-2 px-5 py-4 rounded-xl bg-orange-500 hover:bg-orange-600 transition-colors text-white font-bold"
                 >
                   <Phone className="w-5 h-5" />
                   <span>097 734 77 67</span>
