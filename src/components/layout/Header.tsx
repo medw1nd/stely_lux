@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Phone, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const navLinks = [
   { name: 'Головна', href: '#home' },
@@ -12,6 +13,8 @@ const navLinks = [
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,6 +27,15 @@ const Header: React.FC = () => {
   const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>, href: string) => {
     e.preventDefault();
     setIsMobileMenuOpen(false);
+
+    if (location.pathname !== '/') {
+      if (href === '#home') {
+        navigate('/');
+      } else {
+        navigate('/' + href);
+      }
+      return;
+    }
 
     if (href === '#home') {
       window.scrollTo({

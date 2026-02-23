@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, MapPin, Mail, Instagram, Send } from 'lucide-react';
+import { Phone, MapPin, Mail, Instagram, Send, Facebook } from 'lucide-react';
 
 const Contact: React.FC = () => {
   return (
@@ -51,10 +51,14 @@ const Contact: React.FC = () => {
 
         <div className="mt-16 text-center">
           <p className="text-gray-400 mb-6">Слідкуйте за нами в соцмережах</p>
-          <div className="flex justify-center gap-6">
+          <div className="flex justify-center flex-wrap gap-4 md:gap-6">
             <a href="#" className="flex items-center gap-2 px-6 py-3 bg-white/10 rounded-full hover:bg-brand-orange transition-colors">
               <Instagram size={20} />
               <span>Instagram</span>
+            </a>
+            <a href="https://www.facebook.com/share/1a1yhR8bGs/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-6 py-3 bg-white/10 rounded-full hover:bg-brand-orange transition-colors">
+              <Facebook size={20} />
+              <span>Facebook</span>
             </a>
             <a href="#" className="flex items-center gap-2 px-6 py-3 bg-white/10 rounded-full hover:bg-brand-orange transition-colors">
               <Send size={20} />
