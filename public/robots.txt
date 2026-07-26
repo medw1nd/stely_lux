@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://steli-lux.if.ua/sitemap.xml
+Sitemap: https://steli-lux.com/sitemap.xml

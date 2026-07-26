@@ -8,17 +8,25 @@ import {
 const phone = '+380977347767';
 const facebook = 'https://www.facebook.com/share/1a1yhR8bGs/?mibextid=wwXIfr';
 
+const assetVersion = '20260726b';
+const work = (image: number, title: string, tag: string, position = 'center') => ({
+  src: `/portfolio-${image}-enhanced.jpg?v=${assetVersion}`,
+  fallback: `/portfolio-${image}.jpg`,
+  title,
+  tag,
+  position,
+});
 const works = [
-  { src: '/portfolio-1-enhanced.jpg', title: 'Контурне освітлення', tag: 'Світлове рішення' },
-  { src: '/portfolio-2-enhanced.jpg', title: 'Графітовий глянець', tag: 'Класичний інтер’єр' },
-  { src: '/portfolio-3-enhanced.jpg', title: 'Теплий глянець', tag: 'Візуально більше простору' },
-  { src: '/portfolio-4-enhanced.jpg', title: 'Срібна фактура', tag: 'Декоративне полотно' },
-  { src: '/portfolio-5-enhanced.jpg', title: 'Орхідеї у ванній', tag: 'Фотодрук' },
-  { src: '/portfolio-6-enhanced.jpg', title: 'Небо над головою', tag: 'Фотодрук' },
-  { src: '/portfolio-7-enhanced.jpg', title: 'Контрастна геометрія', tag: 'Глянцеве полотно' },
-  { src: '/portfolio-8-enhanced.jpg', title: 'Кругла композиція', tag: 'Багаторівнева конструкція' },
-  { src: '/portfolio-9-enhanced.jpg', title: 'Плавна хвиля', tag: 'Фігурна конструкція' },
-  { src: '/portfolio-10-enhanced.jpg', title: 'Лінійна абстракція', tag: 'Декоративне полотно' },
+  work(8, 'Кругла композиція', 'Багаторівнева конструкція'),
+  work(7, 'Контрастна геометрія', 'Глянцеве полотно'),
+  work(10, 'Лінійна абстракція', 'Декоративне полотно'),
+  work(1, 'Контурне освітлення', 'Світлове рішення', 'center 42%'),
+  work(6, 'Небо над головою', 'Фотодрук'),
+  work(5, 'Орхідеї у ванній', 'Фотодрук'),
+  work(3, 'Теплий глянець', 'Візуально більше простору', 'center 35%'),
+  work(4, 'Срібна фактура', 'Декоративне полотно'),
+  work(9, 'Плавна хвиля', 'Фігурна конструкція'),
+  work(2, 'Графітовий глянець', 'Класичний інтер’єр', 'center 30%'),
 ];
 
 const benefits = [
@@ -127,7 +135,16 @@ function App() {
         </div>
         <div className="portfolio-grid">
           {works.map((work, i) => <button key={work.src} className={`portfolio-card card-${i + 1}`} onClick={() => setSelected(i)}>
-            <img src={work.src} alt={`${work.title} — робота Steli Lux`} loading={i > 3 ? 'lazy' : undefined} />
+            <img
+              src={work.src}
+              alt={`${work.title} — робота Steli Lux`}
+              loading={i > 3 ? 'lazy' : undefined}
+              style={{ objectPosition: work.position }}
+              onError={event => {
+                event.currentTarget.onerror = null;
+                event.currentTarget.src = work.fallback;
+              }}
+            />
             <span className="portfolio-overlay"><small>{work.tag}</small><strong>{work.title}</strong><i><ArrowRight /></i></span>
           </button>)}
         </div>
@@ -188,7 +205,7 @@ function App() {
     {selected !== null && <div className="lightbox" role="dialog" aria-modal="true" aria-label="Перегляд роботи" onClick={() => setSelected(null)}>
       <button className="close" onClick={() => setSelected(null)} aria-label="Закрити"><X /></button>
       <button className="prev" onClick={e => { e.stopPropagation(); setSelected((selected - 1 + works.length) % works.length); }} aria-label="Попереднє фото"><ChevronLeft /></button>
-      <figure onClick={e => e.stopPropagation()}><img src={works[selected].src} alt={works[selected].title} /><figcaption><small>{works[selected].tag}</small><strong>{works[selected].title}</strong></figcaption></figure>
+      <figure onClick={e => e.stopPropagation()}><img src={works[selected].src} alt={works[selected].title} onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = works[selected].fallback; }} /><figcaption><small>{works[selected].tag}</small><strong>{works[selected].title}</strong></figcaption></figure>
       <button className="next" onClick={e => { e.stopPropagation(); setSelected((selected + 1) % works.length); }} aria-label="Наступне фото"><ChevronRight /></button>
       <span className="lightbox-count">{selected + 1} / {works.length}</span>
     </div>}
