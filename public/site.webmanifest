@@ -1,0 +1,22 @@
+{
+  "name": "Steli Lux — натяжні стелі",
+  "short_name": "Steli Lux",
+  "description": "Натяжні стелі в Івано-Франківську та області",
+  "lang": "uk-UA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#171715",
+  "theme_color": "#171715",
+  "icons": [
+    {
+      "src": "/favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
