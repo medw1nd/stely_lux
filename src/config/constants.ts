@@ -1,5 +1,5 @@
 import { ShieldCheck, Zap, Award, Users, BadgeCheck, Leaf, Sparkles, HeartHandshake } from 'lucide-react';
-import { ServiceFeature, PortfolioItem } from './types';
+import { ServiceFeature, PortfolioItem } from '../types';
 
 export const FEATURES: ServiceFeature[] = [
   {
