@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { PORTFOLIO_ITEMS } from './config/constants';
 import {
   ArrowRight, BadgeCheck, Check, ChevronLeft, ChevronRight, Clock3,
   Layers3, MapPin, Menu, MessageCircle, Phone, Ruler, ShieldCheck,
@@ -15,8 +16,20 @@ const work = (image: number, title: string, tag: string, position = 'center') =>
   title,
   tag,
   position,
+  filter: undefined as string | undefined,
 });
+const newWorks = PORTFOLIO_ITEMS.flatMap(({ imageUrl, title, category, presentation }) =>
+  presentation ? [{
+    src: imageUrl,
+    fallback: undefined,
+    title,
+    tag: category,
+    position: presentation.position,
+    filter: `brightness(${presentation.brightness}) saturate(0.94)`,
+  }] : []
+);
 const works = [
+  ...newWorks,
   work(8, 'Кругла композиція', 'Багаторівнева конструкція'),
   work(7, 'Контрастна геометрія', 'Глянцеве полотно'),
   work(10, 'Лінійна абстракція', 'Декоративне полотно'),
@@ -139,10 +152,11 @@ function App() {
               src={work.src}
               alt={`${work.title} — робота Steli Lux`}
               loading={i > 3 ? 'lazy' : undefined}
-              style={{ objectPosition: work.position }}
+              style={{ objectPosition: work.position, filter: work.filter }}
               onError={event => {
-                event.currentTarget.onerror = null;
-                event.currentTarget.src = work.fallback;
+                if (work.fallback && event.currentTarget.getAttribute('src') !== work.fallback) {
+                  event.currentTarget.src = work.fallback;
+                }
               }}
             />
             <span className="portfolio-overlay"><small>{work.tag}</small><strong>{work.title}</strong><i><ArrowRight /></i></span>
@@ -205,7 +219,7 @@ function App() {
     {selected !== null && <div className="lightbox" role="dialog" aria-modal="true" aria-label="Перегляд роботи" onClick={() => setSelected(null)}>
       <button className="close" onClick={() => setSelected(null)} aria-label="Закрити"><X /></button>
       <button className="prev" onClick={e => { e.stopPropagation(); setSelected((selected - 1 + works.length) % works.length); }} aria-label="Попереднє фото"><ChevronLeft /></button>
-      <figure onClick={e => e.stopPropagation()}><img src={works[selected].src} alt={works[selected].title} onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = works[selected].fallback; }} /><figcaption><small>{works[selected].tag}</small><strong>{works[selected].title}</strong></figcaption></figure>
+      <figure onClick={e => e.stopPropagation()}><img src={works[selected].src} alt={works[selected].title} style={{ filter: works[selected].filter }} onError={event => { const fallback = works[selected].fallback; if (fallback && event.currentTarget.getAttribute('src') !== fallback) event.currentTarget.src = fallback; }} /><figcaption><small>{works[selected].tag}</small><strong>{works[selected].title}</strong></figcaption></figure>
       <button className="next" onClick={e => { e.stopPropagation(); setSelected((selected + 1) % works.length); }} aria-label="Наступне фото"><ChevronRight /></button>
       <span className="lightbox-count">{selected + 1} / {works.length}</span>
     </div>}
