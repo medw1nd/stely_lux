@@ -37,6 +37,12 @@ const Portfolio: React.FC = () => {
                 <img
                   src={item.imageUrl}
                   alt={item.title}
+                  loading="lazy"
+                  decoding="async"
+                  style={item.presentation && {
+                    objectPosition: item.presentation.position,
+                    filter: `brightness(${item.presentation.brightness}) saturate(0.94)`
+                  }}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               </motion.div>

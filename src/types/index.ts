@@ -11,6 +11,7 @@ export interface PortfolioItem {
   title: string;
   category: string;
   imageUrl: string;
+  presentation?: { brightness: number; position: string };
 }
 
 export interface CalculatorState {
