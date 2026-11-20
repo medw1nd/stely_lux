@@ -5,8 +5,8 @@
   "lang": "uk-UA",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#171715",
-  "theme_color": "#171715",
+  "background_color": "#151412",
+  "theme_color": "#151412",
   "icons": [
     {
       "src": "/favicon-192.png",
