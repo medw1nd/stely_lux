@@ -54,11 +54,11 @@ export const FILTERS: { id: 'all' | Category; label: string }[] = [
   { id: 'forms', label: 'Конструкції' },
 ];
 
-export const SOLUTIONS = [
+export const SOLUTIONS: { n: string; title: string; text: string; img: string; position?: string }[] = [
   { n: 'I', title: 'Світлові лінії', text: 'Вбудовані лінії світла, що задають ритм простору й замінюють класичні люстри.', img: '/graded/ceiling-with-pendant.jpg' },
   { n: 'II', title: 'Трекові системи', text: 'Магнітні треки врівень зі стелею: акцентне світло, яке можна переналаштувати будь-коли.', img: '/graded/geometric-tracks.jpg' },
-  { n: 'III', title: 'Контурна підсвітка', text: 'Ефект ширяючої стелі — м’яке світло по периметру, що візуально піднімає простір.', img: '/graded/portfolio-1.jpg', position: 'center 30%' },
-  { n: 'IV', title: 'Приховані карнизи', text: 'Ніша під штори без видимих кріплень: тканина ніби виходить зі стелі.', img: '/graded/concealed-curtain-track.jpg', position: 'center 40%' },
+  { n: 'III', title: 'Контурна підсвітка', text: 'Ефект ширяючої стелі — м’яке світло по периметру, що візуально піднімає простір.', img: '/graded/led-perimeter.jpg' },
+  { n: 'IV', title: 'Приховані карнизи', text: 'Ніша під штори без видимих кріплень: тканина ніби виходить зі стелі.', img: '/stock/curtain-niche.jpg' }, // Unsplash photo (free licence), illustration only
 ];
 
 export const PRINCIPLES = [
