@@ -1,8 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, ArrowUpRight, Check, MapPin, Phone } from 'lucide-react';
+import { AnimatePresence, motion, useScroll } from 'framer-motion';
+import { ArrowRight, ArrowUp, ArrowUpRight, Check, MapPin, Phone } from 'lucide-react';
 import { FACEBOOK, FEATURES, HOURS, LEAD_ENDPOINT, NAV, PHONE, PHONE_LABEL } from './data';
 import { BrandMark, EASE, Reveal, scrollToId } from './ui';
+import { Magnetic, WordsReveal } from './fx';
 
 const ROOMS = ['Вітальня', 'Спальня', 'Кухня', 'Ванна', 'Вся квартира', 'Будинок'];
 
@@ -41,7 +42,7 @@ export function Contact({ estimate }: { estimate: string }) {
       <div className="contact-glow" />
       <Reveal className="contact-copy">
         <span className="eyebrow">Безкоштовний замір</span>
-        <h2 className="h-section">Почнімо<br />з вашої <em className="gold-text">стелі</em></h2>
+        <WordsReveal className="h-section" text={'Почнімо\nз вашої стелі'} em={['стелі']} />
         <p className="lead">
           {FEATURES.leadForm
             ? 'Залиште контакт — передзвонимо протягом робочого дня, відповімо на питання та домовимося про зручний час заміру.'
@@ -61,7 +62,7 @@ export function Contact({ estimate }: { estimate: string }) {
             <a className="call-card-phone" href={`tel:${PHONE}`}>{PHONE_LABEL}</a>
             <p>Майстер проконсультує щодо полотна, світла та вартості й підбере зручний час для безкоштовного заміру.</p>
             <div className="call-card-actions">
-              <a className="btn btn-gold" href={`tel:${PHONE}`}><Phone /> Зателефонувати</a>
+              <Magnetic strength={.2}><a className="btn btn-gold" href={`tel:${PHONE}`}><Phone /> Зателефонувати</a></Magnetic>
               <a className="btn btn-ghost" href={FACEBOOK} target="_blank" rel="noreferrer">Facebook <ArrowUpRight /></a>
             </div>
           </div>
@@ -111,17 +112,19 @@ export function Contact({ estimate }: { estimate: string }) {
   );
 }
 
+const toTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
 export function Footer() {
   return (
     <footer className="footer">
       <div className="footer-top">
-        <div className="footer-brand"><BrandMark /><div className="footer-big">steli<span>lux</span></div></div>
+        <button className="footer-brand" onClick={toTop} aria-label="Steli Lux — нагору"><BrandMark /><span className="footer-big">steli<span>lux</span></span></button>
         <nav className="footer-nav">
           {NAV.map(n => <button key={n.id} onClick={() => scrollToId(n.id)}>{n.label}</button>)}
         </nav>
       </div>
       <div className="footer-bottom">
-        <span>© {new Date().getFullYear()} Steli Lux · Натяжні стелі в Івано-Франківську та області</span>
+        <button className="footer-copy" onClick={toTop}>© {new Date().getFullYear()} Steli Lux · Натяжні стелі в Івано-Франківську та області</button>
         <a href={`tel:${PHONE}`}>{PHONE_LABEL}</a>
       </div>
     </footer>
@@ -162,6 +165,38 @@ export function MobileCta() {
             <Phone /> Зателефонувати
           </motion.a>
         )
+      )}
+    </AnimatePresence>
+  );
+}
+
+/** Floating "back to top" arrow with a ring that fills as you scroll. */
+export function BackToTop() {
+  const { scrollYProgress } = useScroll();
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > window.innerHeight * 1.2);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.button
+          className="to-top"
+          onClick={toTop}
+          aria-label="Нагору"
+          initial={{ opacity: 0, y: 20, scale: .8 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: .8 }}
+          transition={{ duration: .5, ease: EASE }}
+          whileHover={{ y: -4 }}
+        >
+          <svg viewBox="0 0 52 52" aria-hidden="true">
+            <circle cx="26" cy="26" r="24" className="to-top-track" />
+            <motion.circle cx="26" cy="26" r="24" className="to-top-ring" style={{ pathLength: scrollYProgress }} />
+          </svg>
+          <ArrowUp />
+        </motion.button>
       )}
     </AnimatePresence>
   );

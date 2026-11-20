@@ -1,16 +1,37 @@
 import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useAnimationFrame, useMotionValue, useScroll, useSpring, useTransform, useVelocity } from 'framer-motion';
 import { Clock3 } from 'lucide-react';
-import { PRINCIPLES, SOLUTIONS, SPECS, STEPS, TOWNS } from './data';
-import { EASE, Reveal } from './ui';
+import { PRINCIPLES, SOLUTIONS, SPECS, STEPS } from './data';
+import { EASE, Reveal, useEnter, useReveal } from './ui';
+import { WordsReveal } from './fx';
 
 const MARQUEE = ['Світлові лінії', 'Трекові системи', 'Тіньовий профіль', 'Контурна підсвітка', 'Приховані карнизи', 'MSD Premium', 'Безкоштовний замір'];
 
 export function Marquee() {
   const row = MARQUEE.map(t => <span key={t}>{t}<i /></span>);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const { scrollY } = useScroll();
+  const velocity = useVelocity(scrollY);
+  const smooth = useSpring(velocity, { damping: 50, stiffness: 300 });
+  const boost = useTransform(smooth, [-2000, 0, 2000], [-6, 0, 6], { clamp: false });
+  const dir = useRef(1);
+
+  useAnimationFrame((_, delta) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const half = el.scrollWidth / 2;
+    const b = boost.get();
+    if (b < -.2) dir.current = -1; else if (b > .2) dir.current = 1;
+    let next = x.get() - dir.current * (delta / 1000) * 60 * (1 + Math.abs(b));
+    if (next <= -half) next += half;
+    if (next > 0) next -= half;
+    x.set(next);
+  });
+
   return (
     <div className="marquee" aria-hidden="true">
-      <div className="marquee-track">{row}{row}</div>
+      <motion.div className="marquee-track" ref={trackRef} style={{ x, animation: 'none' }}>{row}{row}</motion.div>
     </div>
   );
 }
@@ -39,36 +60,33 @@ export function Manifesto() {
   );
 }
 
+function SolutionCard({ s, i }: { key?: string; s: (typeof SOLUTIONS)[number]; i: number }) {
+  const { ref, style } = useReveal<HTMLElement>(i * .12, 90, .94);
+  return (
+    <motion.article ref={ref} className="solution" tabIndex={0} style={style}>
+      <img src={s.img} alt="" loading="lazy" style={{ objectPosition: s.position }} />
+      <span className="solution-n">{s.n}</span>
+      <h3>{s.title}</h3>
+      <p>{s.text}</p>
+      <div className="solution-line" />
+    </motion.article>
+  );
+}
+
 export function Solutions() {
   return (
     <section className="section" id="solutions">
       <div className="sec-head">
         <Reveal>
           <span className="eyebrow">Рішення</span>
-          <h2 className="h-section">Архітектура<br /><em className="gold-text">світла</em></h2>
+          <WordsReveal className="h-section" text={'Архітектура\nсвітла'} em={['світла']} />
         </Reveal>
         <Reveal delay={.1}>
           <p className="lead">Сучасна стеля — це не біла площина, а сценарій освітлення. Поєднуємо полотно, профіль і світло в одну чисту композицію.</p>
         </Reveal>
       </div>
       <div className="solutions-grid">
-        {SOLUTIONS.map((s, i) => (
-          <motion.article
-            key={s.title}
-            className="solution"
-            tabIndex={0}
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 1.1, ease: EASE, delay: i * .1 }}
-          >
-            <img src={s.img} alt="" loading="lazy" style={{ objectPosition: s.position }} />
-            <span className="solution-n">{s.n}</span>
-            <h3>{s.title}</h3>
-            <p>{s.text}</p>
-            <div className="solution-line" />
-          </motion.article>
-        ))}
+        {SOLUTIONS.map((s, i) => <SolutionCard key={s.title} s={s} i={i} />)}
       </div>
     </section>
   );
@@ -113,21 +131,25 @@ export function Materials() {
   );
 }
 
+function TimelineRail() {
+  const ref = useRef<HTMLDivElement>(null);
+  const p = useEnter(ref, '85%', '35%');
+  return <div className="timeline-rail" ref={ref}><motion.span style={{ scaleX: p }} /></div>;
+}
+
 export function Process() {
   return (
     <section className="section night" id="process">
       <div className="sec-head center">
         <Reveal>
           <span className="eyebrow center">Процес</span>
-          <h2 className="h-section" style={{ marginTop: 26 }}>Від першого дзвінка<br /><em className="gold-text">до готової стелі</em></h2>
+          <WordsReveal className="h-section" text={'Від першого дзвінка\nдо готової стелі'} em={['до', 'готової', 'стелі']} />
         </Reveal>
       </div>
       <div className="timeline">
-        <motion.div className="timeline-rail" initial="hidden" whileInView="show" viewport={{ once: true, margin: '-80px' }}>
-          <motion.span variants={{ hidden: { scaleX: 0 }, show: { scaleX: 1 } }} transition={{ duration: 2.4, ease: EASE }} />
-        </motion.div>
+        <TimelineRail />
         {STEPS.map((s, i) => (
-          <Reveal key={s.n} delay={.25 + i * .2} className="step">
+          <Reveal key={s.n} delay={i * .14} className="step">
             <div className="step-dot">{s.n}</div>
             <h3>{s.title}</h3>
             <p>{s.text}</p>
@@ -149,18 +171,15 @@ export function Region() {
         </Reveal>
         <Reveal delay={.1} className="region-text">
           <p>
-            <strong>Steli Lux</strong> — монтаж натяжних стель в Івано-Франківську під ключ: від безкоштовного заміру до
-            готової стелі зі світлом. Встановлюємо матові, сатинові та глянцеві полотна MSD Premium, робимо
-            <strong> світлові лінії</strong>, <strong>магнітні трекові системи</strong>, <strong>тіньовий профіль</strong>,
-            контурну LED-підсвітку та <strong>приховані карнизи</strong> для квартир, будинків і комерційних приміщень.
+            <strong>Steli Lux</strong> — студія натяжних стель в Івано-Франківську. Беремо на себе все: замір, підбір
+            полотна й освітлення, монтаж і прибирання після роботи. Працюємо з полотнами <strong>MSD Premium</strong> і
+            сучасними системами світла — <strong>світловими лініями</strong>, <strong>магнітними треками</strong>,
+            <strong> тіньовим профілем</strong> та <strong>прихованими карнизами</strong>.
           </p>
           <p>
-            Виїжджаємо на замір по всій Івано-Франківській області. Ціну фіксуємо після заміру — без доплат у кінці,
-            а більшість кімнат монтуємо за один день.
+            Обслуговуємо Івано-Франківськ та всю область. Приїдемо на безкоштовний замір у зручний для вас час,
+            зафіксуємо ціну одразу після нього й змонтуємо більшість кімнат за один день.
           </p>
-          <ul className="towns" aria-label="Міста, де ми працюємо">
-            {TOWNS.map(t => <li key={t}>{t}</li>)}
-          </ul>
         </Reveal>
       </div>
     </section>

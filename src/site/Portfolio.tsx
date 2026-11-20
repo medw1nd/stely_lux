@@ -2,7 +2,37 @@ import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Plus, X } from 'lucide-react';
 import { FILTERS, WORKS, type Category } from './data';
-import { EASE, Reveal } from './ui';
+import { EASE, Reveal, useReveal } from './ui';
+import { useTilt, WordsReveal } from './fx';
+
+function TileInner({ src, alt, lazy, position, tag, title }: { src: string; alt: string; lazy: boolean; position?: string; tag: string; title: string }) {
+  const { style, glare, handlers } = useTilt(5);
+  return (
+    <motion.span className="tile-inner" style={style} {...handlers}>
+      <img src={src} alt={alt} loading={lazy ? 'lazy' : undefined} style={{ objectPosition: position }} />
+      <motion.span className="tile-glare" style={{ background: glare }} />
+      <span className="tile-plus"><Plus /></span>
+      <span className="tile-info"><small>{tag}</small><strong>{title}</strong></span>
+    </motion.span>
+  );
+}
+
+function Tile({ w, i, big, onOpen }: { key?: string; w: (typeof WORKS)[number]; i: number; big: boolean; onOpen: () => void }) {
+  const { ref, style } = useReveal<HTMLButtonElement>((i % 4) * .1, 80, .92);
+  return (
+    <motion.button
+      layout
+      ref={ref}
+      style={style}
+      className={`tile${w.size && big ? ' ' + w.size : ''}`}
+      onClick={onOpen}
+      exit={{ opacity: 0, scale: .96 }}
+      aria-label={`Відкрити: ${w.title}`}
+    >
+      <TileInner src={w.src} alt={`${w.title} — робота Steli Lux`} lazy={i > 3} position={w.position} tag={w.tag} title={w.title} />
+    </motion.button>
+  );
+}
 
 export default function Portfolio() {
   const [filter, setFilter] = useState<'all' | Category>('all');
@@ -30,7 +60,7 @@ export default function Portfolio() {
       <div className="sec-head">
         <Reveal>
           <span className="eyebrow">Портфоліо</span>
-          <h2 className="h-section">Роботи, які<br /><em className="gold-text">говорять самі</em></h2>
+          <WordsReveal className="h-section" text={'Роботи, які\nговорять самі'} em={['говорять', 'самі']} />
         </Reveal>
         <Reveal delay={.1}>
           <div className="filters" role="tablist" aria-label="Фільтр робіт">
@@ -42,24 +72,9 @@ export default function Portfolio() {
       </div>
 
       <motion.div layout className="gallery">
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence>
           {list.map((w, i) => (
-            <motion.button
-              layout
-              key={w.src}
-              className={`tile${w.size && filter === 'all' ? ' ' + w.size : ''}`}
-              onClick={() => setIndex(i)}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: .96 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: .9, ease: EASE, delay: (i % 4) * .07 }}
-              aria-label={`Відкрити: ${w.title}`}
-            >
-              <img src={w.src} alt={`${w.title} — робота Steli Lux`} loading={i > 3 ? 'lazy' : undefined} style={{ objectPosition: w.position }} />
-              <span className="tile-plus"><Plus /></span>
-              <span className="tile-info"><small>{w.tag}</small><strong>{w.title}</strong></span>
-            </motion.button>
+            <Tile key={w.src} w={w} i={i} big={filter === 'all'} onOpen={() => setIndex(i)} />
           ))}
         </AnimatePresence>
       </motion.div>

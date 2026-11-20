@@ -3,12 +3,14 @@ import Hero from './site/Hero';
 import { Manifesto, Marquee, Materials, Process, Region, Solutions } from './site/Sections';
 import Portfolio from './site/Portfolio';
 import Faq from './site/Faq';
-import { Contact, Footer, MobileCta } from './site/Contact';
+import { BackToTop, Contact, Footer, MobileCta } from './site/Contact';
+import { CursorLight } from './site/fx';
 
 function App() {
   return (
     <>
       <div className="grain" aria-hidden="true" />
+      <CursorLight />
       <Header />
       <main>
         <Hero />
@@ -24,6 +26,7 @@ function App() {
       </main>
       <Footer />
       <MobileCta />
+      <BackToTop />
     </>
   );
 }
