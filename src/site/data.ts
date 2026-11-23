@@ -1,6 +1,8 @@
 export const PHONE = '+380977347767';
 export const PHONE_LABEL = '097 734 77 67';
 export const FACEBOOK = 'https://www.facebook.com/share/1a1yhR8bGs/?mibextid=wwXIfr';
+/** Opens a chat by phone number. Replace with https://t.me/<username> if the business has a Telegram username. */
+export const TELEGRAM = `https://t.me/${PHONE}`;
 export const HOURS = 'Щодня, 09:00–20:00';
 
 /** Optional endpoint for the lead form (e.g. a Telegram-bot webhook). Set VITE_LEAD_ENDPOINT in .env.local. */
@@ -35,16 +37,11 @@ export interface Work {
 }
 
 export const WORKS: Work[] = [
+  { src: '/graded/portfolio-8.jpg', title: 'Кругла композиція з дзеркальним глянцем', tag: 'Багаторівнева конструкція', category: 'forms', size: 'big' },
   { src: '/graded/portfolio-1.jpg', title: 'Світловий периметр у ванній', tag: 'Контурна LED-підсвітка', category: 'light', size: 'tall', position: 'center 40%' },
-  { src: '/graded/geometric-tracks.jpg', title: 'Геометрія треків біля панорамних вікон', tag: 'Трекові системи', category: 'tracks', size: 'wide' },
-  { src: '/graded/portfolio-8.jpg', title: 'Кругла композиція з дзеркальним глянцем', tag: 'Багаторівнева конструкція', category: 'forms' },
-  { src: '/graded/led-perimeter.jpg', title: 'Ширяючий контур над мармуром', tag: 'Контурна LED-підсвітка', category: 'light' },
-  { src: '/graded/ceiling-with-pendant.jpg', title: 'Лінійні треки та центральний акцент', tag: 'Комбіноване світло', category: 'tracks', size: 'wide' },
   { src: '/graded/double-light-track.jpg', title: 'Подвійний трек — крупний план', tag: 'Трекові системи', category: 'tracks', size: 'tall', position: 'center 65%' },
-  { src: '/graded/portfolio-7.jpg', title: 'Контрастна графітова геометрія', tag: 'Двоколірна конструкція', category: 'forms' },
-  { src: '/graded/ceiling-around-column.jpg', title: 'Примикання до дерев’яної колони', tag: 'Складні примикання', category: 'forms' },
-  { src: '/graded/concealed-curtain-track.jpg', title: 'Прихований карниз біля вікна', tag: 'Ніша під штори', category: 'forms', size: 'tall', position: 'center 39%' },
-  { src: '/graded/portfolio-3.jpg', title: 'Теплий глянець у вітальні', tag: 'Глянцеве полотно', category: 'forms', size: 'wide', position: 'center 35%' },
+  { src: '/graded/geometric-tracks-clean.jpg', title: 'Геометрія треків біля панорамних вікон', tag: 'Трекові системи', category: 'tracks', size: 'wide' },
+  { src: '/graded/ceiling-lines-main.jpg', title: 'Лінійні треки та центральний акцент', tag: 'Комбіноване світло', category: 'tracks', size: 'wide' },
 ];
 
 export const FILTERS: { id: 'all' | Category; label: string }[] = [
@@ -55,10 +52,10 @@ export const FILTERS: { id: 'all' | Category; label: string }[] = [
 ];
 
 export const SOLUTIONS: { n: string; title: string; text: string; img: string; position?: string }[] = [
-  { n: 'I', title: 'Світлові лінії', text: 'Вбудовані лінії світла, що задають ритм простору й замінюють класичні люстри.', img: '/graded/ceiling-with-pendant.jpg' },
-  { n: 'II', title: 'Трекові системи', text: 'Магнітні треки врівень зі стелею: акцентне світло, яке можна переналаштувати будь-коли.', img: '/graded/geometric-tracks.jpg' },
+  { n: 'I', title: 'Світлові лінії', text: 'Вбудовані лінії світла, що задають ритм простору й замінюють класичні люстри.', img: '/graded/ceiling-lines-main.jpg' },
+  { n: 'II', title: 'Трекові системи', text: 'Магнітні треки врівень зі стелею: акцентне світло, яке можна переналаштувати будь-коли.', img: '/graded/geometric-tracks-clean.jpg' },
   { n: 'III', title: 'Контурна підсвітка', text: 'Ефект ширяючої стелі — м’яке світло по периметру, що візуально піднімає простір.', img: '/graded/led-perimeter.jpg' },
-  { n: 'IV', title: 'Приховані карнизи', text: 'Ніша під штори без видимих кріплень: тканина ніби виходить зі стелі.', img: '/stock/curtain-niche.jpg' }, // Unsplash photo (free licence), illustration only
+  { n: 'IV', title: 'Приховані карнизи', text: 'Ніша під штори без видимих кріплень: тканина ніби виходить зі стелі.', img: '/graded/ceiling-lines-main.jpg' },
 ];
 
 export const PRINCIPLES = [
@@ -74,7 +71,7 @@ export const TOWNS = [
 ];
 
 export const STEPS = [
-  { n: '01', title: 'Заявка', text: 'Телефонуєте або залишаєте заявку. Уточнюємо побажання та зручний час.' },
+  { n: '01', title: 'Заявка', text: 'Телефонуєте або пишете в Telegram. Уточнюємо побажання та зручний час.' },
   { n: '02', title: 'Безкоштовний замір', text: 'Майстер приїжджає з каталогом полотен, профілів і світла.' },
   { n: '03', title: 'Рішення й ціна', text: 'Погоджуємо конструкцію, освітлення та фіксуємо вартість.' },
   { n: '04', title: 'Монтаж', text: 'Більшість кімнат — за один день. Після нас лишається тільки чистота.' },

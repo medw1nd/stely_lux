@@ -1,7 +1,7 @@
-import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { AnimatePresence, motion, useScroll, useTransform, type MotionValue } from 'framer-motion';
-import { ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Menu, Phone, X } from 'lucide-react';
-import { FACEBOOK, FAQ, HOURS, PHONE, PHONE_LABEL, SOLUTIONS, STEPS, WORKS } from '../site/data';
+import { ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Lightbulb, LightbulbOff, Menu, Phone, Send, X } from 'lucide-react';
+import { FACEBOOK, FAQ, HOURS, PHONE, PHONE_LABEL, SOLUTIONS, STEPS, TELEGRAM, WORKS } from '../site/data';
 import { EASE, Reveal, scrollToId } from '../site/ui';
 import type { Mode } from './Scene';
 
@@ -50,14 +50,21 @@ function Header() {
     on(); window.addEventListener('scroll', on, { passive: true });
     return () => window.removeEventListener('scroll', on);
   }, []);
-  useEffect(() => { document.body.style.overflow = open ? 'hidden' : ''; }, [open]);
-  const go = (id: string) => { setOpen(false); scrollToId(id); };
+  useEffect(() => {
+    if (!open) return;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: globalThis.KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', onKey); };
+  }, [open]);
+  const go =(id: string) => { setOpen(false); scrollToId(id); };
   return (
     <>
       <header className={`l-header${solid ? ' solid' : ''}`}>
         <button className="l-brand" onClick={toTop} aria-label="Steli Lux — нагору"><Logo /><b>Steli Lux</b></button>
         <nav className="l-nav">{NAV.map(n => <button key={n.id} className={active === n.id ? 'on' : ''} onClick={() => go(n.id)}>{n.label}</button>)}</nav>
         <a className="l-head-phone" href={`tel:${PHONE}`}><Phone /> {PHONE_LABEL}</a>
+        <a className="l-head-tg" href={TELEGRAM} target="_blank" rel="noreferrer" aria-label="Написати в Telegram"><Send /></a>
         <button className="l-burger" onClick={() => setOpen(true)} aria-label="Меню"><Menu /></button>
       </header>
       <AnimatePresence>
@@ -67,6 +74,7 @@ function Header() {
             <nav>{NAV.map((n, i) => <motion.button key={n.id} onClick={() => go(n.id)} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .1 + i * .05, duration: .5, ease: EASE }}>{n.label}</motion.button>)}</nav>
             <div className="l-menu-foot">
               <a className="l-btn l-btn-light" href={`tel:${PHONE}`}><Phone /> {PHONE_LABEL}</a>
+              <a className="l-btn l-btn-tg" href={TELEGRAM} target="_blank" rel="noreferrer"><Send /> Написати в Telegram</a>
               <a className="l-btn l-btn-ghost" href={FACEBOOK} target="_blank" rel="noreferrer">Facebook</a>
             </div>
           </motion.div>
@@ -81,15 +89,17 @@ function Hero() {
   const [mode, setMode] = useState<Mode>('off');
   const [auto, setAuto] = useState(true);
   const [ready, setReady] = useState(false);
+  const [noWebgl, setNoWebgl] = useState(false);
 
   // switch the light on after load, then cycle scenarios until the visitor picks one
   useEffect(() => {
-    if (!ready) return;
-    const t = setTimeout(() => setMode('contour'), 700);
+    if (!ready || !auto) return;
+    const t = setTimeout(() => setMode(m => (m === 'off' ? 'contour' : m)), 700);
     return () => clearTimeout(t);
-  }, [ready]);
+  }, [ready, auto]);
   useEffect(() => {
     if (!auto || !ready || mode === 'off') return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const order: Mode[] = ['contour', 'lines', 'tracks'];
     const t = setTimeout(() => setMode(order[(order.indexOf(mode) + 1) % order.length]), 4800);
     return () => clearTimeout(t);
@@ -102,21 +112,22 @@ function Hero() {
   return (
     <section className="l-hero" id="home">
       <Suspense fallback={<div className="l-scene" />}>
-        <Scene mode={mode} onReady={() => setReady(true)} />
+        <Scene mode={mode} onReady={() => setReady(true)} onFail={() => setNoWebgl(true)} />
       </Suspense>
       <div className="l-hero-shade" />
       <div className="l-hero-in">
         <div className="l-hero-copy">
           <motion.span className="l-eyebrow" {...fade(.3)}>Студія натяжних стель · Івано-Франківськ</motion.span>
-          <motion.h1 className="l-h1" {...fade(.45)}>Натяжні стелі<br />в Івано-Франківську</motion.h1>
+          <motion.h1 className="l-h1" {...fade(.45)}>Натяжні стелі<br /><span className="l-glow">в Івано-Франківську</span></motion.h1>
           <motion.p className="l-lead" {...fade(.6)}>Проєктуємо світло ще до монтажу. Оберіть сценарій — і подивіться, як може виглядати ваша стеля.</motion.p>
           <motion.div className="l-hero-actions" {...fade(.75)}>
             <a className="l-btn l-btn-light" href={`tel:${PHONE}`}><Phone /> {PHONE_LABEL}</a>
+            <a className="l-btn l-btn-tg" href={TELEGRAM} target="_blank" rel="noreferrer"><Send /> Telegram</a>
             <button className="l-btn l-btn-ghost" onClick={() => scrollToId('works')}>Реальні роботи <ArrowRight /></button>
           </motion.div>
         </div>
 
-        <motion.div className="l-config" {...fade(.9)}>
+        {!noWebgl && <motion.div className="l-config" {...fade(.9)}>
           <span className="l-config-title"><i className={mode === 'off' ? 'off' : ''} /> Сценарій світла</span>
           <div className="l-seg" role="radiogroup" aria-label="Сценарій світла">
             {MODES.map(m => (
@@ -130,7 +141,7 @@ function Hero() {
             <motion.p key={mode} className="l-config-text" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: .35 }}>{current.text}</motion.p>
           </AnimatePresence>
           {auto && <span className="l-config-hint">Інтерактивна 3D-модель · рухайте мишкою</span>}
-        </motion.div>
+        </motion.div>}
       </div>
       <motion.div className="l-hero-stats" {...fade(1.1)}>
         <div><b>5+</b><span>років досвіду</span></div>
@@ -165,8 +176,8 @@ function Statement() {
 /* ---------------- Photo that "switches on" as it reaches the middle of the screen ---------------- */
 function LitImage({ src, alt, position, className }: { src: string; alt: string; position?: string; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'center 55%'] });
-  const filter = useTransform(scrollYProgress, [0, 1], ['brightness(.22) saturate(.2)', 'brightness(1) saturate(1)']);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'start 55%'] });
+  const filter = useTransform(scrollYProgress, [0, 1], ['brightness(.45) saturate(.5)', 'brightness(1) saturate(1)']);
   const scale = useTransform(scrollYProgress, [0, 1], [1.12, 1]);
   return (
     <div className={`l-lit ${className ?? ''}`} ref={ref}>
@@ -202,6 +213,7 @@ function Switch() {
   const box = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState(50);
   const [drag, setDrag] = useState(false);
+  const [glide, setGlide] = useState(false);
   const touched = useRef(false);
   const { scrollYProgress } = useScroll({ target: box, offset: ['start end', 'center center'] });
   // until the visitor touches it, the divider sweeps in with the scroll
@@ -209,6 +221,16 @@ function Switch() {
   const set = (clientX: number) => {
     const r = box.current!.getBoundingClientRect();
     setPos(Math.min(100, Math.max(0, ((clientX - r.left) / r.width) * 100)));
+  };
+  const lit = pos < 50; // the unlit photo covers the left part, so a small value means "light on"
+  const toggle = () => { touched.current = true; setGlide(true); setPos(lit ? 100 : 0); };
+  const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    const next = { ArrowLeft: pos - 5, ArrowDown: pos - 5, ArrowRight: pos + 5, ArrowUp: pos + 5, Home: 0, End: 100 }[e.key];
+    if (next === undefined) return;
+    e.preventDefault();
+    touched.current = true;
+    setGlide(false);
+    setPos(Math.min(100, Math.max(0, next)));
   };
   return (
     <section className="l-sec l-switch-sec">
@@ -218,18 +240,25 @@ function Switch() {
       </div>
       <div
         ref={box}
-        className={`l-switch${drag ? ' drag' : ''}`}
-        onPointerDown={e => { touched.current = true; setDrag(true); (e.target as HTMLElement).setPointerCapture?.(e.pointerId); set(e.clientX); }}
+        className={`l-switch${drag ? ' drag' : ''}${glide ? ' glide' : ''}`}
+        onPointerDown={e => { touched.current = true; setGlide(false); setDrag(true); e.currentTarget.setPointerCapture?.(e.pointerId); set(e.clientX); }}
         onPointerMove={e => { if (drag) set(e.clientX); }}
         onPointerUp={() => setDrag(false)}
-        role="slider" aria-label="Порівняння без підсвітки і з підсвіткою" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pos)} tabIndex={0}
-        onKeyDown={e => { touched.current = true; if (e.key === 'ArrowLeft') setPos(p => Math.max(0, p - 5)); if (e.key === 'ArrowRight') setPos(p => Math.min(100, p + 5)); }}
+        onPointerCancel={() => setDrag(false)}
+        role="slider" aria-label="Порівняння без підсвітки і з підсвіткою" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pos)}
+        aria-valuetext={`Без світла ${Math.round(pos)}% кадру, зі світлом ${100 - Math.round(pos)}%`} tabIndex={0}
+        onKeyDown={onKey}
       >
-        <img src="/graded/led-perimeter.jpg" alt="Стеля з контурною підсвіткою — увімкнено" draggable={false} />
-        <img className="off" src="/graded/led-perimeter.jpg" alt="" aria-hidden="true" draggable={false} style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }} />
+        <img src="/graded/led-perimeter.jpg" alt="Стеля у ванній з увімкненою контурною підсвіткою" loading="lazy" decoding="async" draggable={false} />
+        <img className="off" src="/graded/led-perimeter-off.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async" draggable={false} style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }} />
         <span className="l-switch-line" style={{ left: `${pos}%` }}><i><ArrowLeft /><ArrowRight /></i></span>
         <span className="l-switch-tag left">Без світла</span>
         <span className="l-switch-tag right">Зі світлом</span>
+      </div>
+      <div className="l-switch-bar">
+        <button className={`l-btn l-btn-ghost${lit ? ' is-lit' : ''}`} onClick={toggle}>
+          {lit ? <LightbulbOff /> : <Lightbulb />} {lit ? 'Вимкнути світло' : 'Увімкнути світло'}
+        </button>
       </div>
     </section>
   );
@@ -281,6 +310,23 @@ function Works() {
           </motion.div>
         )}
       </AnimatePresence>
+    </section>
+  );
+}
+
+/* ---------------- Telegram call to action ---------------- */
+function TelegramBand() {
+  return (
+    <section className="l-tgband-wrap" aria-labelledby="tg-title">
+      <Reveal className="l-tgband">
+        <img src="/graded/portfolio-8.jpg" alt="" loading="lazy" decoding="async" />
+        <div className="l-tgband-in">
+          <span className="l-eyebrow">Швидка консультація</span>
+          <h2 className="l-h2" id="tg-title">Надішліть фото кімнати в Telegram</h2>
+          <p className="l-lead">Підкажемо, яка стеля й світло підійдуть саме вашому простору.</p>
+          <a className="l-btn l-btn-light" href={TELEGRAM} target="_blank" rel="noreferrer"><Send /> Написати в Telegram</a>
+        </div>
+      </Reveal>
     </section>
   );
 }
@@ -387,7 +433,8 @@ function Contact() {
         <a className="l-contact-num" href={`tel:${PHONE}`}>{PHONE_LABEL}</a>
         <div className="l-hero-actions" style={{ justifyContent: 'center' }}>
           <a className="l-btn l-btn-light" href={`tel:${PHONE}`}><Phone /> Зателефонувати</a>
-          <a className="l-btn l-btn-ghost" href={FACEBOOK} target="_blank" rel="noreferrer">Facebook <ArrowUpRight /></a>
+          <a className="l-btn l-btn-tg" href={TELEGRAM} target="_blank" rel="noreferrer"><Send /> Telegram</a>
+          <a className="l-btn l-btn-ghost l-keep" href={FACEBOOK} target="_blank" rel="noreferrer">Facebook <ArrowUpRight /></a>
         </div>
         <p className="l-contact-meta">{HOURS} · Івано-Франківськ та область</p>
       </Reveal>
@@ -404,7 +451,10 @@ function Footer() {
       </div>
       <div className="l-foot-bottom">
         <button className="l-foot-copy" onClick={toTop}>© {new Date().getFullYear()} Steli Lux · Натяжні стелі в Івано-Франківську та області</button>
-        <a href={`tel:${PHONE}`}>{PHONE_LABEL}</a>
+        <span className="l-foot-links">
+          <a href={TELEGRAM} target="_blank" rel="noreferrer">Telegram</a>
+          <a href={`tel:${PHONE}`}>{PHONE_LABEL}</a>
+        </span>
       </div>
     </footer>
   );
@@ -436,6 +486,11 @@ function Floating() {
               <Phone /> Зателефонувати
             </motion.a>
           )}
+          {!near && (
+            <motion.a key="tg" className="l-mtg" href={TELEGRAM} target="_blank" rel="noreferrer" aria-label="Написати в Telegram" initial={{ y: 90 }} animate={{ y: 0 }} exit={{ y: 90 }} transition={{ duration: .45, ease: EASE }}>
+              <Send />
+            </motion.a>
+          )}
         </>
       )}
     </AnimatePresence>
@@ -452,6 +507,7 @@ export default function Light() {
         <Services />
         <Switch />
         <Works />
+        <TelegramBand />
         <Materials />
         <Process />
         <Faq />

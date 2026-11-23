@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom/client';
 
 /**
  * Designs live side by side:
- *  - «Сценарій світла» (3D configurator, default) → /
+ *  - «Студія» (photo-led, light, default)         → /
+ *  - «Сценарій світла» (3D configurator)          → /?design=light
  *  - «Площина» (architectural minimal)          → /?design=plane
  *  - «Контур» (dark graphite + gold)            → /?design=kontur
  *  - «Сяйво» (bright, not chosen)                → /?design=vivid
@@ -15,6 +16,12 @@ if (!rootElement) throw new Error('Could not find root element to mount to');
 const design = new URLSearchParams(window.location.search).get('design');
 
 async function boot() {
+  // Earlier designs contain old pricing copy, so they open only on the local dev server.
+  if (!import.meta.env.DEV || !design || !['compare', 'kontur', 'vivid', 'plane', 'light'].includes(design)) {
+    const { default: bootStudio } = await import('./studio/boot');
+    await bootStudio();
+    return;
+  }
   const root = ReactDOM.createRoot(rootElement!);
   if (design === 'compare') {
     // Side-by-side comparison: ?design=compare&a=light&b=kontur

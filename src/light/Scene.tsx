@@ -12,7 +12,7 @@ export type Mode = 'contour' | 'lines' | 'tracks' | 'off';
  * A small real-time room seen from below: a glossy stretch ceiling whose built-in light
  * switches between scenarios. Pure three.js, no models — everything is generated.
  */
-export default function Scene({ mode, onReady }: { mode: Mode; onReady?: () => void }) {
+export default function Scene({ mode, onReady, onFail }: { mode: Mode; onReady?: () => void; onFail?: () => void }) {
   const host = useRef<HTMLDivElement>(null);
   const modeRef = useRef<Mode>(mode);
   modeRef.current = mode;
@@ -21,12 +21,14 @@ export default function Scene({ mode, onReady }: { mode: Mode; onReady?: () => v
     const el = host.current!;
     const W = () => el.clientWidth, H = () => el.clientHeight;
     const mobile = window.matchMedia('(max-width: 760px)').matches;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     let renderer: THREE.WebGLRenderer;
     try {
       renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     } catch {
       el.classList.add('no-webgl');
+      onFail?.();
       return;
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, mobile ? 1.5 : 1.75));
@@ -179,8 +181,9 @@ export default function Scene({ mode, onReady }: { mode: Mode; onReady?: () => v
 
       m2.lerp(mouse, Math.min(1, dt * 2.5));
       const s = window.scrollY / window.innerHeight;
-      camera.position.set(camBase.x + m2.x * .9 + Math.sin(t * .15) * .15, camBase.y - m2.y * .35 + s * .5, camBase.z - s * 1.4);
-      camera.lookAt(target.x + m2.x * 1.4, target.y - m2.y * .4, target.z);
+      const still = reducedMotion ? 0 : 1;
+      camera.position.set(camBase.x + still * (m2.x * .9 + Math.sin(t * .15) * .15), camBase.y + still * (-m2.y * .35 + s * .5), camBase.z - still * s * 1.4);
+      camera.lookAt(target.x + still * m2.x * 1.4, target.y - still * m2.y * .4, target.z);
       composer.render();
       if (!readySent) { readySent = true; onReady?.(); }
     };
